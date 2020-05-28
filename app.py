@@ -15,6 +15,7 @@ class App:
         self.selected_box = None
         self.font = pygame.font.SysFont("arial", COLUMNSIZE//2)
         self.disabledCells = set()
+        self.empty_cells = []
 
     def run(self):
         self.load_disabled_cells()
@@ -54,9 +55,10 @@ class App:
             if event.type == pygame.KEYDOWN:
                 if self.selected_box and self.is_editable_cell(self.selected_box):
                     if event.unicode.isnumeric():
-                        print("working")
                         self.gridData[self.selected_box[1]][self.selected_box[0]] = int(event.unicode)
-                        print(self.selected_box)
+                        if self.is_all_empty_cells_filled():
+                            print('All filled')
+                            self.is_sudoko_solved()
 
     def drawborder(self):
         # pygame.draw.line(self.window, BLACK, (SIDE_MARGIN, TOP_MARGIN), (WIDTH - SIDE_MARGIN, TOP_MARGIN), THICKLINEWIDTH)
@@ -130,3 +132,14 @@ class App:
                 if cellValue != 0:
                     blocked_cell_key = str(i) + str(j)
                     self.disabledCells.add(blocked_cell_key)
+                else:
+                    self.empty_cells.append((i, j))
+
+    def is_all_empty_cells_filled(self):
+        for tup in self.empty_cells:
+            if self.gridData[tup[0]][tup[1]] == 0:
+                return False
+        return True
+
+    def is_sudoko_solved(self):
+        verify_solved(self.gridData)
