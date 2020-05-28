@@ -17,6 +17,7 @@ class App:
         self.disabledCells = set()
 
     def run(self):
+        self.load_disabled_cells()
         while self.running:
             self.eventhandling()
             self.update()
@@ -41,14 +42,21 @@ class App:
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(self.mousePos)
+                self.mousePos = event.pos;
                 if self.is_mouse_position_inside_grid(self.mousePos):
                     selected_cell = self.grid_index_based_on_selected_position(self.mousePos)
                     if self.is_editable_cell(selected_cell):
                         self.selected_box = self.grid_index_based_on_selected_position(self.mousePos)
-                        print("Empty Cell")
+                    else:
+                        self.selected_box = None
                 else:
                     self.selected_box = None
+            if event.type == pygame.KEYDOWN:
+                if self.selected_box and self.is_editable_cell(self.selected_box):
+                    if event.unicode.isnumeric():
+                        print("working")
+                        self.gridData[self.selected_box[1]][self.selected_box[0]] = int(event.unicode)
+                        print(self.selected_box)
 
     def drawborder(self):
         # pygame.draw.line(self.window, BLACK, (SIDE_MARGIN, TOP_MARGIN), (WIDTH - SIDE_MARGIN, TOP_MARGIN), THICKLINEWIDTH)
@@ -70,13 +78,10 @@ class App:
                 (y_position > MIN_GRID_Y_POSITION) and (y_position < MAX_GRID_Y_POSITION)):
             return True
         return False
+
     def grid_index_based_on_selected_position(self, selectedPosition):
         x_index = selectedPosition[0]//ROWSIZE
-        print(x_index)
-        print(selectedPosition[0]/ROWSIZE)
         y_index = selectedPosition[1]//COLUMNSIZE
-        print(y_index)
-        print(selectedPosition[1] / COLUMNSIZE)
         return (x_index, y_index)
 
     def draw_selected_box(self, selected_box):
@@ -108,13 +113,20 @@ class App:
         for i, row in enumerate(self.gridData):
             for j, cellValue in enumerate(row):
                 if cellValue != 0:
-                    self. draw_disabled_box((j, i))
+                    blocked_cell_key = str(i) + str(j)
+                    if blocked_cell_key in self.disabledCells:
+                        self.draw_disabled_box((j, i))
                     self.add_text_content(self.window, str(cellValue), self.get_text_position((i, j)))
-                    blockedCellKey = str(i) + str(j)
-                    self.disabledCells.add(blockedCellKey)
 
     def is_editable_cell(self, selected_cell):
         cellKey = str(selected_cell[1])+str(selected_cell[0])
-        if (cellKey in self.disabledCells):
+        if cellKey in self.disabledCells:
             return False
         return True
+
+    def load_disabled_cells(self):
+        for i, row in enumerate(self.gridData):
+            for j, cellValue in enumerate(row):
+                if cellValue != 0:
+                    blocked_cell_key = str(i) + str(j)
+                    self.disabledCells.add(blocked_cell_key)
