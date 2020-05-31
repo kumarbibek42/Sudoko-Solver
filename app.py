@@ -6,6 +6,7 @@ import sys
 class App:
     def __init__(self):
         print("initialized")
+        solve_sudoko_using_backtracking()
         pygame.init()
         pygame.display.set_caption(APP_TITLE)
         self.window = pygame.display.set_mode((HIGHT, WIDTH))
@@ -58,7 +59,9 @@ class App:
                         self.gridData[self.selected_box[1]][self.selected_box[0]] = int(event.unicode)
                         if self.is_all_empty_cells_filled():
                             print('All filled')
-                            self.is_sudoko_solved()
+                            result = self.is_sudoko_solved()
+                            print('from app:')
+                            print(result)
 
     def drawborder(self):
         # pygame.draw.line(self.window, BLACK, (SIDE_MARGIN, TOP_MARGIN), (WIDTH - SIDE_MARGIN, TOP_MARGIN), THICKLINEWIDTH)
@@ -142,4 +145,4 @@ class App:
         return True
 
     def is_sudoko_solved(self):
-        verify_solved(self.gridData)
+        return verify_solved(self.gridData)
