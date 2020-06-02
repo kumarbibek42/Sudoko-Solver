@@ -1,6 +1,7 @@
 from math import sqrt
-import random
-
+from services import board_service
+WINDOW_WIDTH = 600
+WINDOW_HIGHT = 600
 HIGHT = 600
 WIDTH = 600
 APP_TITLE = 'Sudoko Solver'
@@ -8,6 +9,8 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BLUE = (50, 111, 168)
 GRAY = (202, 204, 207)
+RED = (204, 22, 47)
+GREEN = (25, 148, 35)
 TOP_MARGIN = 12
 SIDE_MARGIN = 12
 THICKLINEWIDTH = 3
@@ -17,17 +20,21 @@ MIN_GRID_X_POSITION = SIDE_MARGIN
 MAX_GRID_X_POSITION = WIDTH - SIDE_MARGIN
 MIN_GRID_Y_POSITION = TOP_MARGIN
 MAX_GRID_Y_POSITION = HIGHT - TOP_MARGIN
-grid_num_array = [
-    [3, 1, 0, 5, 7, 8, 4, 9, 2],
-    [5, 2, 9, 1, 3, 4, 7, 6, 8],
-    [0, 8, 7, 6, 2, 9, 5, 3, 1],
-    [2, 6, 3, 4, 1, 5, 9, 8, 7],
-    [9, 7, 4, 8, 6, 3, 1, 2, 5],
-    [8, 5, 1, 7, 9, 2, 6, 4, 3],
-    [1, 3, 8, 9, 4, 7, 2, 5, 6],
-    [6, 9, 2, 3, 5, 1, 8, 7, 4],
-    [7, 4, 5, 2, 8, 6, 3, 1, 9]
-]
+DIFFICULTY_LEVEL = 1
+try:
+    grid_num_array = board_service.get_board(DIFFICULTY_LEVEL)
+except:
+    grid_num_array = [
+        [3, 1, 0, 5, 7, 8, 4, 9, 2],
+        [5, 2, 9, 1, 3, 4, 7, 6, 8],
+        [4, 8, 7, 6, 2, 9, 5, 3, 1],
+        [2, 6, 3, 4, 1, 5, 9, 8, 7],
+        [9, 7, 4, 8, 6, 3, 1, 2, 5],
+        [8, 5, 1, 7, 9, 2, 6, 4, 3],
+        [1, 3, 8, 9, 4, 7, 2, 5, 6],
+        [6, 9, 2, 3, 5, 1, 8, 7, 4],
+        [7, 4, 5, 2, 8, 6, 3, 1, 9]
+    ]
 ai_solved_grid = []
 sudoko_size = 3 * 3
 print(grid_num_array)
@@ -135,7 +142,7 @@ def solve_sudoko():
     empty_cell = [0, 0]
     if not is_any_cell_empty(empty_cell):
         return True
-    for num in range(sudoko_size):
+    for num in range(1, sudoko_size+1):
         row_ind = empty_cell[0]
         column_ind = empty_cell[1]
         if is_assignment_safe(row_ind, column_ind, num):
@@ -147,7 +154,10 @@ def solve_sudoko():
 
 
 def solve_sudoko_using_backtracking():
+    print(grid_num_array)
     initialize_solved_grid()
     res = solve_sudoko()
-    print('AI work')
-    # print(res)
+    print('Solved by backtracking:{}'.format(res))
+
+def index_util(x_index, y_index):
+    return str(x_index) + str(y_index)

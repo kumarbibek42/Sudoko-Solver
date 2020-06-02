@@ -2,14 +2,13 @@ from config import *
 import pygame
 import sys
 
-
 class App:
     def __init__(self):
         print("initialized")
         solve_sudoko_using_backtracking()
         pygame.init()
         pygame.display.set_caption(APP_TITLE)
-        self.window = pygame.display.set_mode((HIGHT, WIDTH))
+        self.window = pygame.display.set_mode((WINDOW_HIGHT, WINDOW_WIDTH))
         self.running = True
         self.gridData = grid_num_array
         self.mousePos = None
@@ -28,12 +27,13 @@ class App:
         sys.exit()
 
     def update(self):
-        self.mousePos = pygame.mouse.get_pos();
+        self.mousePos = pygame.mouse.get_pos()
 
     def drawing(self):
         self.window.fill(WHITE)
         if self.selected_box:
             self.draw_selected_box(self.selected_box)
+        self.draw_wrong_and_correct_answers_to_the_grid()
         self.draw_numbers_to_the_grid()
         self.drawborder()
         pygame.display.update()
@@ -44,7 +44,7 @@ class App:
             if event.type == pygame.QUIT:
                 self.running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.mousePos = event.pos;
+                self.mousePos = event.pos
                 if self.is_mouse_position_inside_grid(self.mousePos):
                     selected_cell = self.grid_index_based_on_selected_position(self.mousePos)
                     if self.is_editable_cell(selected_cell):
@@ -56,15 +56,18 @@ class App:
             if event.type == pygame.KEYDOWN:
                 if self.selected_box and self.is_editable_cell(self.selected_box):
                     if event.unicode.isnumeric():
-                        self.gridData[self.selected_box[1]][self.selected_box[0]] = int(event.unicode)
+                        x_index = self.selected_box[1]
+                        y_index = self.selected_box[0]
+                        self.gridData[x_index][y_index] = int(event.unicode)
+                        current_index = index_util(x_index, y_index)
                         if self.is_all_empty_cells_filled():
                             print('All filled')
                             result = self.is_sudoko_solved()
-                            print('from app:')
-                            print(result)
+                            if result == True:
+                                print('from app:')
+                                print('Congratulations')
 
     def drawborder(self):
-        # pygame.draw.line(self.window, BLACK, (SIDE_MARGIN, TOP_MARGIN), (WIDTH - SIDE_MARGIN, TOP_MARGIN), THICKLINEWIDTH)
         rect = pygame.Rect(SIDE_MARGIN, TOP_MARGIN, WIDTH - 2*SIDE_MARGIN, HIGHT - 2*TOP_MARGIN)
         for i in range(1, 9):
             defaultThickness = 1
@@ -146,3 +149,16 @@ class App:
 
     def is_sudoko_solved(self):
         return verify_solved(self.gridData)
+
+    def draw_wrong_and_correct_answers_to_the_grid(self):
+        for i in self.empty_cells:
+            current_color = RED
+            x_index = i[0]
+            y_index = i[1]
+            current_num = self.gridData[x_index][y_index]
+            if current_num != 0:
+                ai_generated_num = ai_solved_grid[x_index][y_index]
+                if ai_generated_num == current_num:
+                    current_color = GREEN
+                rect = self.get_selected_box_rect((y_index, x_index))
+                pygame.draw.rect(self.window, current_color, rect)
